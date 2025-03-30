@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jarvis/controller/speech_controller.dart';
 import 'package:jarvis/pages/jarvis.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(ChangeNotifierProvider(
+    create: (context) => SpeechController(),
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
