@@ -22,6 +22,16 @@ class _JarvisState extends State<Jarvis> {
   Widget build(BuildContext context) {
     final speechController = Provider.of<SpeechController>(context);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!speechController.isListening && !isBlob && isBottomMic) {
+        Future.delayed(const Duration(milliseconds: 800), () {
+          setState(() {
+            isBottomMic = false;
+          });
+        });
+      }
+    });
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 6, 2, 42),
       body: SafeArea(
@@ -80,7 +90,7 @@ class _JarvisState extends State<Jarvis> {
                 ),
               )
             : Center(
-                child: Text("Hello world"),
+                child: Text(""),
               ),
       ),
       bottomNavigationBar: !isBlob
@@ -112,13 +122,19 @@ class _JarvisState extends State<Jarvis> {
                               padding: const EdgeInsets.all(8),
                               child: Container(
                                 height: 100,
-                                child: SiriWaveform.ios9(
-                                  controller: WaveformController().controller,
-                                  options: const IOS9SiriWaveformOptions(
-                                      height: 100, width: 400),
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 500),
+                                  switchInCurve: Curves.easeIn,
+                                  switchOutCurve: Curves.easeOut,
+                                  child: SiriWaveform.ios9(
+                                    key: const ValueKey('wave'),
+                                    controller: WaveformController().controller,
+                                    options: const IOS9SiriWaveformOptions(
+                                        height: 100, width: 400),
+                                  ),
                                 ),
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ))

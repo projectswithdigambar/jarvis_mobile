@@ -18,7 +18,15 @@ class SpeechController extends ChangeNotifier {
 
   Future _initSpeech() async {
     try {
-      _speechEnabled = await _speechToText.initialize();
+      _speechEnabled = await _speechToText.initialize(
+        onStatus: (status) {
+          print("Speech status: $status");
+          if (status == 'done' || status == 'notListening') {
+            stopListening();
+            notifyListeners();
+          }
+        },
+      );
     } catch (e) {
       print("Error in intialization $e");
     }
@@ -27,11 +35,21 @@ class SpeechController extends ChangeNotifier {
   }
 
   // Start Method
-  void startListening() async {
-    await _speechToText.listen(onResult: (result) {
-      _lastWords = result.recognizedWords;
-      notifyListeners();
-    });
+  Future<void> startListening() async {
+    _lastWords = "";
+    await _speechToText.listen(
+      onResult: (result) {
+        _lastWords = result.recognizedWords;
+        notifyListeners();
+
+        if (result.finalResult) {
+          notifyListeners();
+        }
+      },
+    );
+    // Wait a moment for isListening to become true
+    await Future.delayed(Duration(milliseconds: 100));
+    notifyListeners();
   }
 
   // Stop Method
