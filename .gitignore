@@ -104,3 +104,4 @@ pubspec.lock
 *.swp
 *.swo
 *.swn
+.tours
