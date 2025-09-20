@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jarvis/controller/speech_controller.dart';
 import 'package:jarvis/controller/waveform_controller.dart';
+import 'package:jarvis/widgets/bottom_nav.dart';
 import 'package:provider/provider.dart';
 import 'package:siri_wave/siri_wave.dart';
 import 'package:widget_and_text_animator/widget_and_text_animator.dart';
@@ -14,7 +15,8 @@ class Jarvis extends StatefulWidget {
 }
 
 class _JarvisState extends State<Jarvis> {
-  bool isBloob = true;
+  bool isBlob = true;
+  bool isBottomMic = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class _JarvisState extends State<Jarvis> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 6, 2, 42),
       body: SafeArea(
-        child: isBloob
+        child: isBlob
             ? Center(
                 child: Column(
                   children: [
@@ -57,7 +59,8 @@ class _JarvisState extends State<Jarvis> {
                         child: GestureDetector(
                             onTap: () => {
                                   setState(() {
-                                    isBloob = false;
+                                    isBlob = false;
+                                    isBottomMic = true;
                                   }),
                                   speechController.isListening
                                       ? speechController.stopListening()
@@ -80,44 +83,58 @@ class _JarvisState extends State<Jarvis> {
                 child: Text("Hello world"),
               ),
       ),
-      bottomNavigationBar: !isBloob
+      bottomNavigationBar: !isBlob
           ? Padding(
               padding: EdgeInsets.only(bottom: 0),
-              child: BottomAppBar(
-                  height: 250,
-                  color: Colors.transparent,
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 100,
-                          child: Padding(
-                            padding:
-                                EdgeInsets.only(left: 10, right: 10, top: 20),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: Text(
-                                speechController.lastWords,
-                                style: GoogleFonts.roboto(
-                                    color: Colors.white, fontSize: 18),
+              child: isBottomMic
+                  ? BottomAppBar(
+                      height: 250,
+                      color: Colors.transparent,
+                      child: Container(
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 100,
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                    left: 10, right: 10, top: 20),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: Text(
+                                    speechController.lastWords,
+                                    style: GoogleFonts.roboto(
+                                        color: Colors.white, fontSize: 18),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Container(
-                            height: 100,
-                            child: SiriWaveform.ios9(
-                              controller: WaveformController().controller,
-                              options: const IOS9SiriWaveformOptions(
-                                  height: 100, width: 400),
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Container(
+                                height: 100,
+                                child: SiriWaveform.ios9(
+                                  controller: WaveformController().controller,
+                                  options: const IOS9SiriWaveformOptions(
+                                      height: 100, width: 400),
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  )),
+                      ))
+                  : Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: BottomNav(
+                        onMicClick: (isClick) => {
+                          if (isClick)
+                            {
+                              setState(() {
+                                isBottomMic = true;
+                                speechController.startListening();
+                              })
+                            }
+                        },
+                      )),
             )
           : null,
     );
